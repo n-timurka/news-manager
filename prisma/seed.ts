@@ -12,6 +12,7 @@ async function main() {
         create: [
           {
             title: "Very important Admin Post",
+            slug: "very-important-admin-post",
             content: "Content",
             published: true,
           },
@@ -30,11 +31,13 @@ async function main() {
         create: [
           {
             title: "Regular User Post",
+            slug: "regular-user-post",
             content: "Content",
             published: true,
           },
           {
             title: "Another Regular User Post",
+            slug: "another-regular-user-post",
             content: "Content",
             published: false,
           },
