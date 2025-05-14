@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { z } from "zod";
 import { postListQuerySchema } from "@/lib/schema";
+import { Prisma } from "@prisma/client";
 
 export async function GET(request: Request) {
   try {
@@ -17,7 +18,7 @@ export async function GET(request: Request) {
     const { page, pageSize, search, tags, sort } = query;
 
     // Build Prisma query
-    const where: any = {
+    const where: Prisma.PostWhereInput = {
       status: "PUBLISHED", // Only show published posts
     };
 
@@ -38,7 +39,7 @@ export async function GET(request: Request) {
       };
     }
 
-    const orderBy =
+    const orderBy: Prisma.TagOrderByWithRelationInput =
       sort === "latest" ? { createdAt: "desc" } : { createdAt: "asc" };
 
     // Fetch posts

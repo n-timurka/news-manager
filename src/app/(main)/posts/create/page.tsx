@@ -15,6 +15,7 @@ import { useSession } from 'next-auth/react';
 import { Loader2 } from "lucide-react"
 import { toast } from "sonner";
 import TipTapEditor from '@/components/TipTapEditor';
+import Image from 'next/image';
 
 export default function NewPostPage() {
   const router = useRouter();
@@ -38,8 +39,8 @@ export default function NewPostPage() {
   console.log('Form:', form);
 
   // Generate slug from title
+  const title = form.watch('title');
   useEffect(() => {
-    const title = form.watch('title');
     if (title) {
       const generatedSlug = title
         .toLowerCase()
@@ -47,7 +48,7 @@ export default function NewPostPage() {
         .replace(/^-+|-+$/g, '');
       form.setValue('slug', generatedSlug);
     }
-  }, [form.watch('title'), form]);
+  }, [title, form]);
 
   // Handle image upload
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -230,7 +231,7 @@ export default function NewPostPage() {
                       </FormControl>
                       {imagePreview && (
                         <div className="mt-4">
-                          <image
+                          <Image
                             src={imagePreview}
                             alt="Post image preview"
                             width={400}

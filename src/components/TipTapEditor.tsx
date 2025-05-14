@@ -1,6 +1,6 @@
 'use client';
 
-import { useEditor, EditorContent } from '@tiptap/react';
+import { useEditor, EditorContent, Editor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import Link from '@tiptap/extension-link';
@@ -12,7 +12,7 @@ interface TipTapEditorProps {
   onChange: (html: string) => void;
 }
 
-const TipTapToolbar = ({ editor }: { editor: any }) => {
+const TipTapToolbar = ({ editor }: { editor: Editor }) => {
   return (
     <div className="border-b p-2 bg-gray-50 flex flex-wrap gap-2">
       <Button

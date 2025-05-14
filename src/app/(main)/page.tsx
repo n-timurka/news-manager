@@ -16,6 +16,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '@/components/ui/pagination';
+import { Post, Tag } from '@/types';
 
 // Utility to strip HTML and truncate text
 const stripHtml = (html: string) => {
@@ -34,7 +35,7 @@ const truncateText = (text: string, maxLength: number) => {
 export default function HomePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [posts, setPosts] = useState<any[]>([]);
+  const [posts, setPosts] = useState<Post[]>([]);
   const [totalPages, setTotalPages] = useState(1);
   const [tags, setTags] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -53,9 +54,9 @@ export default function HomePage() {
         const response = await fetch('/api/tags');
         if (!response.ok) throw new Error('Failed to fetch tags');
         const data = await response.json();
-        setTags(data.map((tag: any) => tag.name));
-      } catch (err: any) {
-        setError(err.message);
+        setTags(data.map((tag: Tag) => tag.name));
+      } catch (error) {
+        setError(error instanceof Error ? error.message : "An error occurred during fetching tags");
       }
     };
     fetchTags();
@@ -83,8 +84,8 @@ export default function HomePage() {
         const data = await response.json();
         setPosts(data.posts);
         setTotalPages(data.totalPages);
-      } catch (err: any) {
-        setError(err.message);
+      } catch (error) {
+        setError(error instanceof Error ? error.message : "An error occurred during fetching posts");
       } finally {
         setIsLoading(false);
       }
@@ -152,7 +153,7 @@ export default function HomePage() {
         </div>
 
         <div className='flex space-x-4'>
-<Input
+          <Input
             placeholder="Search by title..."
             value={search}
             onChange={handleSearch}
