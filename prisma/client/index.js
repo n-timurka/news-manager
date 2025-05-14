@@ -216,7 +216,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "C:\\Users\\timme\\Documents\\GitHub\\news-manager\\prisma\\prisma\\client",
+      "value": "C:\\Users\\timme\\Documents\\GitHub\\news-manager\\prisma\\client",
       "fromEnvVar": null
     },
     "config": {
@@ -234,26 +234,27 @@ const config = {
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
-    "rootEnvPath": null,
-    "schemaEnvPath": "../../../.env"
+    "rootEnvPath": "../../.env",
+    "schemaEnvPath": "../../.env"
   },
-  "relativePath": "../..",
+  "relativePath": "..",
   "clientVersion": "6.7.0",
   "engineVersion": "3cff47a7f5d65c3ea74883f1d736e41d68ce91ed",
   "datasourceNames": [
     "db"
   ],
   "activeProvider": "postgresql",
+  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
         "fromEnvVar": "DATABASE_URL",
-        "value": "postgres://neondb_owner:LVOpq4yPQt9D@ep-round-firefly-a2vwbp9z-pooler.eu-central-1.aws.neon.tech/neondb?sslmode=require"
+        "value": null
       }
     }
   },
-  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"prisma/client\"\n}\n\ndatasource db {\n  provider  = \"postgresql\"\n  url       = env(\"DATABASE_URL\")\n  directUrl = env(\"DATABASE_URL_UNPOOLED\")\n}\n\nenum PostStatus {\n  DRAFT\n  PUBLISHED\n}\n\nmodel Post {\n  id        String     @id @default(cuid())\n  slug      String     @unique\n  status    PostStatus @default(DRAFT)\n  title     String\n  content   String?\n  image     String?\n  createdAt DateTime   @default(now()) @map(name: \"created_at\")\n  updatedAt DateTime   @updatedAt @map(name: \"updated_at\")\n\n  authorId String?\n  author   User?   @relation(fields: [authorId], references: [id])\n\n  comments Comment[]\n  tags     Tag[]     @relation(\"PostToTag\")\n\n  @@index([slug])\n  @@index([authorId])\n  @@map(\"posts\")\n}\n\nmodel Comment {\n  id        String   @id @default(cuid())\n  content   String   @db.Text\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  postId String\n  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)\n\n  authorId String\n  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)\n\n  parentId String?\n  parent   Comment?  @relation(\"CommentToComment\", fields: [parentId], references: [id], onDelete: SetNull)\n  replies  Comment[] @relation(\"CommentToComment\")\n\n  @@index([postId])\n  @@index([authorId])\n  @@map(\"comments\")\n}\n\nmodel Tag {\n  id          String   @id @default(cuid())\n  name        String   @unique\n  slug        String   @unique\n  description String?\n  createdAt   DateTime @default(now())\n  updatedAt   DateTime @updatedAt\n\n  posts Post[] @relation(\"PostToTag\")\n\n  @@map(\"tags\")\n}\n\nenum UserRole {\n  USER\n  EDITOR\n  ADMIN\n}\n\nmodel User {\n  id        String   @id @default(cuid())\n  email     String   @unique\n  password  String?\n  name      String?\n  role      UserRole @default(USER)\n  avatar    String?\n  createdAt DateTime @default(now()) @map(name: \"created_at\")\n  updatedAt DateTime @updatedAt @map(name: \"updated_at\")\n\n  posts    Post[]\n  comments Comment[]\n  accounts Account[]\n  sessions Session[]\n\n  @@index(email)\n  @@map(name: \"users\")\n}\n\nmodel Account {\n  id                String   @id @default(uuid())\n  userId            String   @map(name: \"user_id\")\n  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)\n  type              String\n  provider          String\n  providerAccountId String   @map(name: \"provider_account_id\")\n  access_token      String?\n  refresh_token     String?\n  expires_at        Int?\n  token_type        String?\n  oauthToken        String?  @map(name: \"oauth_token\")\n  oauthTokenSecret  String?  @map(name: \"oauth_token_secret\")\n  scope             String?\n  id_token          String?\n  session_state     String?\n  createdAt         DateTime @default(now())\n  updatedAt         DateTime @updatedAt\n\n  @@unique([provider, providerAccountId])\n}\n\nmodel Session {\n  id           String   @id @default(uuid())\n  sessionToken String   @unique\n  userId       String\n  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)\n  expires      DateTime\n  createdAt    DateTime @default(now())\n  updatedAt    DateTime @updatedAt\n}\n\nmodel VerificationToken {\n  identifier String\n  token      String   @unique\n  expires    DateTime\n  createdAt  DateTime @default(now())\n  updatedAt  DateTime @updatedAt\n\n  @@unique([identifier, token])\n}\n",
-  "inlineSchemaHash": "0d1eda4d7309776c5b6cb7984f19b0bd839aae682c1a40277f6e85aa7393f220",
+  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"client\"\n}\n\ndatasource db {\n  provider  = \"postgresql\"\n  url       = env(\"DATABASE_URL\")\n  directUrl = env(\"DATABASE_URL_UNPOOLED\")\n}\n\nenum PostStatus {\n  DRAFT\n  PUBLISHED\n}\n\nmodel Post {\n  id        String     @id @default(cuid())\n  slug      String     @unique\n  status    PostStatus @default(DRAFT)\n  title     String\n  content   String?\n  image     String?\n  createdAt DateTime   @default(now()) @map(name: \"created_at\")\n  updatedAt DateTime   @updatedAt @map(name: \"updated_at\")\n\n  authorId String?\n  author   User?   @relation(fields: [authorId], references: [id])\n\n  comments Comment[]\n  tags     Tag[]     @relation(\"PostToTag\")\n\n  @@index([slug])\n  @@index([authorId])\n  @@map(\"posts\")\n}\n\nmodel Comment {\n  id        String   @id @default(cuid())\n  content   String   @db.Text\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  postId String\n  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)\n\n  authorId String\n  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)\n\n  parentId String?\n  parent   Comment?  @relation(\"CommentToComment\", fields: [parentId], references: [id], onDelete: SetNull)\n  replies  Comment[] @relation(\"CommentToComment\")\n\n  @@index([postId])\n  @@index([authorId])\n  @@map(\"comments\")\n}\n\nmodel Tag {\n  id          String   @id @default(cuid())\n  name        String   @unique\n  slug        String   @unique\n  description String?\n  createdAt   DateTime @default(now())\n  updatedAt   DateTime @updatedAt\n\n  posts Post[] @relation(\"PostToTag\")\n\n  @@map(\"tags\")\n}\n\nenum UserRole {\n  USER\n  EDITOR\n  ADMIN\n}\n\nmodel User {\n  id        String   @id @default(cuid())\n  email     String   @unique\n  password  String?\n  name      String?\n  role      UserRole @default(USER)\n  avatar    String?\n  createdAt DateTime @default(now()) @map(name: \"created_at\")\n  updatedAt DateTime @updatedAt @map(name: \"updated_at\")\n\n  posts    Post[]\n  comments Comment[]\n  accounts Account[]\n  sessions Session[]\n\n  @@index(email)\n  @@map(name: \"users\")\n}\n\nmodel Account {\n  id                String   @id @default(uuid())\n  userId            String   @map(name: \"user_id\")\n  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)\n  type              String\n  provider          String\n  providerAccountId String   @map(name: \"provider_account_id\")\n  access_token      String?\n  refresh_token     String?\n  expires_at        Int?\n  token_type        String?\n  oauthToken        String?  @map(name: \"oauth_token\")\n  oauthTokenSecret  String?  @map(name: \"oauth_token_secret\")\n  scope             String?\n  id_token          String?\n  session_state     String?\n  createdAt         DateTime @default(now())\n  updatedAt         DateTime @updatedAt\n\n  @@unique([provider, providerAccountId])\n}\n\nmodel Session {\n  id           String   @id @default(uuid())\n  sessionToken String   @unique\n  userId       String\n  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)\n  expires      DateTime\n  createdAt    DateTime @default(now())\n  updatedAt    DateTime @updatedAt\n}\n\nmodel VerificationToken {\n  identifier String\n  token      String   @unique\n  expires    DateTime\n  createdAt  DateTime @default(now())\n  updatedAt  DateTime @updatedAt\n\n  @@unique([identifier, token])\n}\n",
+  "inlineSchemaHash": "6d0742975ec5ec41ebe053ed7ea454473f13959a18c4f73cbf2a28aa55a86470",
   "copyEngine": true
 }
 
@@ -262,8 +263,8 @@ const fs = require('fs')
 config.dirname = __dirname
 if (!fs.existsSync(path.join(__dirname, 'schema.prisma'))) {
   const alternativePaths = [
-    "prisma/prisma/client",
     "prisma/client",
+    "client",
   ]
   
   const alternativePath = alternativePaths.find((altPath) => {
@@ -293,7 +294,7 @@ Object.assign(exports, Prisma)
 
 // file annotations for bundling tools to include these files
 path.join(__dirname, "query_engine-windows.dll.node");
-path.join(process.cwd(), "prisma/prisma/client/query_engine-windows.dll.node")
+path.join(process.cwd(), "prisma/client/query_engine-windows.dll.node")
 // file annotations for bundling tools to include these files
 path.join(__dirname, "schema.prisma");
-path.join(process.cwd(), "prisma/prisma/client/schema.prisma")
+path.join(process.cwd(), "prisma/client/schema.prisma")
