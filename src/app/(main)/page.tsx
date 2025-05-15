@@ -1,12 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Pagination,
@@ -16,21 +13,14 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '@/components/ui/pagination';
-import { Post, Tag } from '@/types';
-
-// Utility to strip HTML and truncate text
-const stripHtml = (html: string) => {
-  const tmp = document.createElement('div');
-  tmp.innerHTML = html;
-  return tmp.textContent || tmp.innerText || '';
-};
-
-const truncateText = (text: string, maxLength: number) => {
-  if (text.length <= maxLength) return text;
-  const truncated = text.slice(0, maxLength);
-  const lastSpace = truncated.lastIndexOf(' ');
-  return lastSpace > 0 ? truncated.slice(0, lastSpace) + '...' : truncated + '...';
-};
+import { Post, PostListResponse } from '@/types';
+import SearchInput from '@/components/SearchInput';
+import SortSelect from '@/components/SortSelect';
+import TagsCombobox from '@/components/TagsCombobox';
+import PostCardSkeleton from '@/components/PostCardSkeleton';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { AlertCircle } from 'lucide-react';
+import PostCard from '@/components/PostCard';
 
 export default function HomePage() {
   const router = useRouter();
@@ -43,7 +33,7 @@ export default function HomePage() {
 
   // Form state for filters
   const [search, setSearch] = useState(searchParams.get('search') || '');
-  const [selectedTags, setSelectedTags] = useState<string[]>(searchParams.get('tags')?.split(',') || []);
+  const [selectedTags, setSelectedTags] = useState<string[]>(searchParams.get('tags')?.split(',').filter(Boolean) || []);
   const [sort, setSort] = useState<'latest' | 'oldest'>(searchParams.get('sort') as 'latest' | 'oldest' || 'latest');
   const [page, setPage] = useState(Number(searchParams.get('page')) || 1);
 
@@ -53,48 +43,49 @@ export default function HomePage() {
       try {
         const response = await fetch('/api/tags');
         if (!response.ok) throw new Error('Failed to fetch tags');
-        const data = await response.json();
-        setTags(data.map((tag: Tag) => tag.name));
-      } catch (error) {
-        setError(error instanceof Error ? error.message : "An error occurred during fetching tags");
+        const data: { name: string }[] = await response.json();
+        setTags(data.map(tag => tag.name));
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Unknown error');
       }
     };
     fetchTags();
   }, []);
 
   // Fetch posts based on filters
-  useEffect(() => {
-    const fetchPosts = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const query = new URLSearchParams({
-          page: page.toString(),
-          pageSize: '12',
-          ...(search && { search }),
-          ...(selectedTags.length > 0 && { tags: selectedTags.join(',') }),
-          sort,
-        }).toString();
+  const fetchPosts = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const query = new URLSearchParams({
+        page: page.toString(),
+        pageSize: '12',
+        ...(search && { search }),
+        ...(selectedTags.length > 0 && { tags: selectedTags.join(',') }),
+        sort,
+      }).toString();
 
-        const response = await fetch(`/api/posts/list?${query}`);
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || 'Failed to fetch posts');
-        }
-        const data = await response.json();
-        setPosts(data.posts);
-        setTotalPages(data.totalPages);
-      } catch (error) {
-        setError(error instanceof Error ? error.message : "An error occurred during fetching posts");
-      } finally {
-        setIsLoading(false);
+      const response = await fetch(`/api/posts/list?${query}`);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to fetch posts');
       }
-    };
-    fetchPosts();
+      const data: PostListResponse = await response.json();
+      setPosts(data.posts);
+      setTotalPages(data.totalPages);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unknown error');
+    } finally {
+      setIsLoading(false);
+    }
   }, [page, search, selectedTags, sort]);
 
+  useEffect(() => {
+    fetchPosts();
+  }, [fetchPosts]);
+
   // Update URL when filters change
-  const updateFilters = () => {
+  const updateFilters = useCallback(() => {
     const query = new URLSearchParams({
       page: page.toString(),
       ...(search && { search }),
@@ -102,30 +93,24 @@ export default function HomePage() {
       sort,
     }).toString();
     router.push(`/?${query}`);
+  }, [page, search, selectedTags, sort, router]);
+
+  // Handle search change
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
+    setPage(1);
   };
 
   // Handle tag selection
-  const handleTagToggle = (tag: string) => {
-    const newTags = selectedTags.includes(tag)
-      ? selectedTags.filter(t => t !== tag)
-      : [...selectedTags, tag];
+  const handleTagChange = (newTags: string[]) => {
     setSelectedTags(newTags);
-    setPage(1); // Reset to page 1
-    updateFilters();
-  };
-
-  // Handle search input
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearch(e.target.value);
-    setPage(1); // Reset to page 1
-    updateFilters();
+    setPage(1);
   };
 
   // Handle sort change
-  const handleSort = (value: 'latest' | 'oldest') => {
+  const handleSortChange = (value: 'latest' | 'oldest') => {
     setSort(value);
-    setPage(1); // Reset to page 1
-    updateFilters();
+    setPage(1);
   };
 
   // Handle page change
@@ -138,75 +123,34 @@ export default function HomePage() {
     <>
       {/* Filters and Sorting */}
       <div className="mb-8 space-y-4">
-        <div className="flex flex-col justify-between md:flex-row gap-4">
-          <div className="flex flex-wrap gap-2">
-          {tags.map(tag => (
-            <Button
-              key={tag}
-              variant={selectedTags.includes(tag) ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => handleTagToggle(tag)}
-            >
-              {tag}
-            </Button>
-          ))}
-        </div>
-
-        <div className='flex space-x-4'>
-          <Input
-            placeholder="Search by title..."
-            value={search}
-            onChange={handleSearch}
-            className="max-w-md"
-          />
-          <Select value={sort} onValueChange={handleSort}>
-            <SelectTrigger className="w-48">
-              <SelectValue placeholder="Sort by" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="latest">Latest First</SelectItem>
-              <SelectItem value="oldest">Oldest First</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        <div className="flex flex-col justify-end items-center md:flex-row gap-4">
+          <SearchInput value={search} onChange={handleSearchChange} />
+          <TagsCombobox tags={tags} selectedTags={selectedTags} onChange={handleTagChange} />
+          <SortSelect value={sort} onChange={handleSortChange} />
         </div>
       </div>
 
       {/* Post List */}
       {isLoading ? (
-        <p>Loading posts...</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <PostCardSkeleton key={i} />
+          ))}
+        </div>
       ) : error ? (
-        <p className="text-red-600">{error}</p>
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>
+            {error}
+          </AlertDescription>
+        </Alert>
       ) : posts.length === 0 ? (
         <p>No posts found.</p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {posts.map(post => (
-            <Card key={post.id}>
-              <CardHeader>
-                <CardTitle className="text-lg">
-                  <Link href={`/posts/${post.slug}`} className="hover:underline">
-                    {post.title}
-                  </Link>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {post.image && (
-                  <Image
-                    src={post.image}
-                    alt={post.title}
-                    width={400}
-                    height={200}
-                    className="w-full h-48 object-cover rounded mb-4"
-                  />
-                )}
-                <p className="text-sm text-gray-600 mb-2">
-                  By {post.author.name || post.author.email} | {new Date(post.createdAt).toLocaleDateString()}
-                </p>
-                <p className="text-sm mb-2">{truncateText(stripHtml(post.content), 100)}</p>
-                <p className="text-sm text-gray-500">Comments: {post.comments.length}</p>
-              </CardContent>
-            </Card>
+            <PostCard key={post.id} post={post} />
           ))}
         </div>
       )}

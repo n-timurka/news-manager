@@ -31,12 +31,11 @@ export default function NewPostPage() {
       title: '',
       slug: '',
       content: '',
-      image: '',
+      image: undefined,
       status: 'DRAFT',
       tags: [],
     },
   });
-  console.log('Form:', form);
 
   // Generate slug from title
   const title = form.watch('title');
@@ -84,6 +83,7 @@ export default function NewPostPage() {
       }
 
       const { url } = await response.json();
+      console.log('Image Upload URL:', url); // Log uploaded URL
       form.setValue('image', url);
       setImagePreview(url);
     } catch (error) {
@@ -93,7 +93,7 @@ export default function NewPostPage() {
 
   // Handle form submission
   const onSubmit = async (data: z.infer<typeof postSchema>) => {
-    console.log('Submitting:', data);
+    console.log('NewPostPage onSubmit called:', data);
     setIsSaving(true);
 
     try {
@@ -111,7 +111,7 @@ export default function NewPostPage() {
         toast.error(errorData.message || 'Failed to create post');
       }
 
-      router.push('/dashboard');
+      router.push('/');
     } catch (error) {
       toast.error("Post creation failed", {
         description: error instanceof Error ? error.message : "An error occurred during post creation",
@@ -120,6 +120,14 @@ export default function NewPostPage() {
         setIsSaving(false)
     }
   };
+
+  // Log form errors for debugging
+  useEffect(() => {
+    if (Object.keys(form.formState.errors).length > 0) {
+      console.log('NewPostPage Errors:', form.formState.errors);
+      toast.error('Please fix the errors in the form');
+    }
+  }, [form.formState.errors]);
 
   // Handle tags input change
   const handleTagsChange = (e: React.ChangeEvent<HTMLInputElement>) => {

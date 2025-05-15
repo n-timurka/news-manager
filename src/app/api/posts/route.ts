@@ -33,7 +33,7 @@ export async function POST(request: Request) {
     const tagRecords = await Promise.all(
       tags.map(async (tagName) => {
         const existingTag = await prisma.tag.findUnique({
-          where: { name: tagName },
+          where: { name: tagName, slug: tagName },
         });
         if (existingTag) {
           return existingTag;

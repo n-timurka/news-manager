@@ -46,3 +46,16 @@ export interface PostListResponse {
   page: number;
   pageSize: number;
 }
+
+// Define Comment type based on Prisma schema
+export type Comment = {
+  id: string;
+  content: string;
+  createdAt: string;
+  author: {
+    id: string;
+    name?: string | null;
+    email: string;
+    avatar?: string | null;
+  };
+};

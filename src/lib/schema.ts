@@ -30,7 +30,7 @@ export const postSchema = z.object({
       "Slug can only contain letters, numbers, and hyphens"
     ),
   content: z.string().min(10, "Content must be at least 10 characters"),
-  image: z.string().url("Invalid image URL").optional(),
+  image: z.string().url("Invalid image URL").nullish(),
   status: z.enum(["DRAFT", "PUBLISHED"]).default("DRAFT").optional(),
   tags: z.array(z.string()).optional(),
 });
@@ -42,4 +42,15 @@ export const postListQuerySchema = z.object({
   search: z.string().optional().nullable(),
   tags: z.array(z.string()).optional(),
   sort: z.enum(["latest", "oldest"]).default("latest"),
+});
+
+// Comment schema
+export const commentSchema = z.object({
+  content: z.string().min(1, "Comment cannot be empty"),
+  postId: z.string().cuid("Invalid post ID"),
+});
+
+// Comment form schema (client-side)
+export const commentFormSchema = z.object({
+  content: z.string().min(1, "Comment cannot be empty"),
 });
