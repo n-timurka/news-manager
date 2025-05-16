@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useEditor, EditorContent, Editor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
@@ -105,7 +106,7 @@ export default function TipTapEditor({ content, onChange }: TipTapEditorProps) {
         openOnClick: false,
       }),
     ],
-    content,
+    content: content || '<p>Start typing...</p>',
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
     },
@@ -114,7 +115,29 @@ export default function TipTapEditor({ content, onChange }: TipTapEditorProps) {
         class: 'prose max-w-none p-4 min-h-[500px] focus:outline-none',
       },
     },
+    immediatelyRender: false,
   });
+
+  // Update editor content when prop changes
+  useEffect(() => {
+    if (!editor || !content) return;
+
+    // Only update if content differs to avoid infinite loops
+    if (editor.getHTML() !== content) {
+      editor.commands.setContent(content, false);
+    }
+  }, [editor, content]);
+
+  // Cleanup editor on unmount
+  useEffect(() => {
+    return () => {
+      editor?.destroy();
+    };
+  }, [editor]);
+
+  if (!editor) {
+    return <div>Loading editor...</div>;
+  }
 
   return (
     <div className="border rounded">

@@ -55,13 +55,13 @@ export default function Header() {
                 <DropdownMenuSeparator />
                 {session.user?.role === 'EDITOR' || session.user?.role === 'ADMIN' ? (
                     <>
-                      <DropdownMenuItem asChild>
-                        <Link href="/dashboard" className="flex items-center space-x-2">
+                      <DropdownMenuItem asChild className="cursor-pointer">
+                        <Link href="/posts" className="flex items-center space-x-2">
                           <FileText className="h-4 w-4" />
                           <span>Posts List</span>
                         </Link>
                       </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
+                      <DropdownMenuItem asChild className="cursor-pointer">
                         <Link href="/posts/create" className="flex items-center space-x-2">
                           <PlusSquare className="h-4 w-4" />
                           <span>Create Post</span>
@@ -70,7 +70,7 @@ export default function Header() {
                     </>
                   ) : null}
                   {session.user?.role === 'ADMIN' ? (
-                    <DropdownMenuItem asChild>
+                    <DropdownMenuItem asChild className="cursor-pointer">
                       <Link href="/users" className="flex items-center space-x-2">
                         <Users className="h-4 w-4" />
                         <span>Users List</span>

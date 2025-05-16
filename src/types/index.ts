@@ -17,16 +17,27 @@ declare module "next-auth/jwt" {
   }
 }
 
+export interface User {
+  id: string;
+  email: string;
+  name?: string | null;
+  avatar?: string | null;
+  role: "ADMIN" | "EDITOR" | "USER";
+}
+
 export type Post = {
   id: string;
   title: string;
   slug: string;
   content: string;
   image?: string | null;
-  createdAt: string;
-  author: { name?: string | null; email: string };
+  status: "DRAFT" | "PUBLISHED";
+  authorId: string;
+  author: User;
   comments: { id: string }[];
   tags: { name: string }[];
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type Tag = {
@@ -51,11 +62,9 @@ export interface PostListResponse {
 export type Comment = {
   id: string;
   content: string;
+  authorId: string;
+  author: User;
+  postId: string;
   createdAt: string;
-  author: {
-    id: string;
-    name?: string | null;
-    email: string;
-    avatar?: string | null;
-  };
+  updatedAt: string;
 };

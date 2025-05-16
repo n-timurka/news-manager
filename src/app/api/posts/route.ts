@@ -3,7 +3,80 @@ import { getServerSession } from "next-auth/next";
 import prisma from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
 import { z } from "zod";
-import { postSchema } from "@/lib/schema";
+import { postSchema, postListQuerySchema } from "@/lib/schema";
+import { Prisma } from "@prisma/client";
+
+export async function GET(request: Request) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    // Parse query parameters
+    const { searchParams } = new URL(request.url);
+    const query = postListQuerySchema.parse({
+      page: searchParams.get("page"),
+      pageSize: searchParams.get("pageSize"),
+      search: searchParams.get("search"),
+      tags: searchParams.get("tags")?.split(",") || [],
+      sort: searchParams.get("sort"),
+    });
+
+    const { page, pageSize, search, tags, sort } = query;
+
+    // Build Prisma query
+    const where: Prisma.PostWhereInput = {
+      ...(session.user.role !== "ADMIN" ? { authorId: session.user.id } : {}),
+      ...(search ? { title: { contains: search, mode: "insensitive" } } : {}),
+      ...(tags && tags.length > 0
+        ? { tags: { some: { name: { in: tags } } } }
+        : {}),
+    };
+
+    const orderBy: Prisma.PostOrderByWithRelationInput = {
+      createdAt: sort === "latest" ? "desc" : "asc",
+    };
+
+    // Fetch posts
+    const [posts, total] = await Promise.all([
+      prisma.post.findMany({
+        where,
+        orderBy,
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+        include: {
+          author: { select: { name: true, email: true } },
+          tags: { select: { name: true } },
+        },
+      }),
+      prisma.post.count({ where }),
+    ]);
+
+    return NextResponse.json(
+      {
+        posts,
+        total,
+        page,
+        pageSize,
+        totalPages: Math.ceil(total / pageSize),
+      },
+      { status: 200 }
+    );
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { message: "Invalid query parameters", errors: error.errors },
+        { status: 400 }
+      );
+    }
+    console.error("Error fetching posts:", error);
+    return NextResponse.json(
+      { message: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
 
 export async function POST(request: Request) {
   // Check authentication

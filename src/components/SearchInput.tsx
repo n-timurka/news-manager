@@ -2,22 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
-
-function useDebounce<T>(value: T, delay: number): T {
-  const [debouncedValue, setDebouncedValue] = useState<T>(value);
-
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedValue(value);
-    }, delay);
-
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [value, delay]);
-
-  return debouncedValue;
-}
+import useDebounce from '@/hooks/useDebounce';
+import { Search, X } from 'lucide-react';
+import { Button } from './ui/button';
 
 interface SearchInputProps {
   value: string;
@@ -36,12 +23,24 @@ export default function SearchInput({ value, onChange }: SearchInputProps) {
     setInputValue(e.target.value);
   };
 
+  const handleClear = () => {
+    setInputValue("");
+  }
+
   return (
-    <Input
-      placeholder="Search by title..."
-      value={inputValue}
-      onChange={handleChange}
-      className="max-w-md"
-    />
+    <div className="relative">
+      <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-500" />
+      <Input
+        placeholder="Search by title..."
+        value={inputValue}
+        onChange={handleChange}
+        className="pl-8"
+      />
+      {inputValue && (
+        <Button variant="ghost" size={"icon"} className="absolute right-0 top-0" onClick={handleClear}>
+          <X className="h-4 w-4 text-gray-500" />
+        </Button>
+      )}
+    </div>
   );
 }
