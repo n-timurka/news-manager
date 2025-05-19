@@ -54,3 +54,15 @@ export const commentSchema = z.object({
 export const commentFormSchema = z.object({
   content: z.string().min(1, "Comment cannot be empty"),
 });
+
+export const userUpdateSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  name: z.string().optional().nullable(),
+  avatar: z.string().optional().nullable(),
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters")
+    .optional()
+    .nullable(),
+  role: z.enum(["USER", "EDITOR", "ADMIN"]).optional(),
+});

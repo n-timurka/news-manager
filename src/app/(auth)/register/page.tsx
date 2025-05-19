@@ -17,10 +17,12 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { Github, Loader2 } from "lucide-react"
+import { Loader2 } from "lucide-react"
 import { signupSchema } from '@/lib/schema';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { signIn } from "next-auth/react";
+import GoogleButton from "@/components/auth/GoogleButton";
+import GithubButton from "@/components/auth/GithubButton";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -53,7 +55,7 @@ export default function RegisterPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Failed to register");
+        toast.error(data.error || "Failed to register");
       }
 
       toast.success("Registration successful!", {
@@ -81,21 +83,16 @@ export default function RegisterPage() {
     }
   }
 
-  // Handle GitHub login
-  const handleGitHubLogin = async () => {
-    await signIn('github', { callbackUrl: '/' });
-  };
-
   return (
-    <Card className="w-full max-w-md">
+    <Card className="w-full max-w-4xl mx-auto">
       <CardHeader className="text-center">
         <CardTitle className="text-xl">Sign Up</CardTitle>
-        <CardDescription className="text-sm text-gray-600">Create an account with your email or GitHub.</CardDescription>
+        <CardDescription className="text-sm text-gray-600">Create an account with your email or social networks.</CardDescription>
       </CardHeader>
       
-      <CardContent>
+      <CardContent className="flex gap-8">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="flex-1 space-y-4">
             <FormField
               control={form.control}
               name="name"
@@ -160,14 +157,14 @@ export default function RegisterPage() {
             </Button>
           </form>
         </Form>
+
+        <section className="basis-1/2 space-y-2 flex flex-col justify-center p-8">
+          <GoogleButton isLoading={isSubmitting} />
+          <GithubButton isLoading={isSubmitting} />
+        </section>
       </CardContent>
       
       <CardFooter className="flex flex-col space-y-4">
-        <Button variant="outline" className="w-full" onClick={handleGitHubLogin}>
-          <Github className="mr-2 h-4 w-4" />
-          Sign up with GitHub
-        </Button>
-
         <p className="text-sm text-gray-600">
           Already have an account?{' '}
           <Link href="/login" className="text-blue-600 hover:underline">

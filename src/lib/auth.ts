@@ -1,9 +1,11 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import GitHubProvider from "next-auth/providers/github";
+import GitHubProvider, { type GithubProfile } from "next-auth/providers/github";
+import GoogleProvider, { type GoogleProfile } from "next-auth/providers/google";
 import prisma from "@/lib/prisma";
 import { compare } from "bcrypt";
+import { UserRole } from "@prisma/client";
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -41,19 +43,35 @@ export const authOptions: NextAuthOptions = {
           email: user.email,
           name: user.name,
           role: user.role,
+          avatar: user.avatar,
+        };
+      },
+    }),
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID || "",
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+      profile(profile: GoogleProfile) {
+        return {
+          id: profile.sub,
+          name: profile.name || profile.login,
+          email: profile.email,
+          role: UserRole.USER,
+          avatar: profile.picture,
+          emailVerified: profile.emailVerified,
         };
       },
     }),
     GitHubProvider({
       clientId: process.env.GITHUB_ID || "",
       clientSecret: process.env.GITHUB_SECRET || "",
-      profile(profile) {
+      profile(profile: GithubProfile) {
         return {
           id: profile.id.toString(),
           name: profile.name || profile.login,
           email: profile.email,
-          role: "USER",
+          role: UserRole.USER,
           avatar: profile.avatar_url,
+          emailVerified: false,
         };
       },
     }),
@@ -84,7 +102,12 @@ export const authOptions: NextAuthOptions = {
         return token;
       }
 
-      return { ...token, id: token.id ?? dbUser.id, role: dbUser.role };
+      return {
+        ...token,
+        id: token.id ?? dbUser.id,
+        role: dbUser.role,
+        avatar: dbUser.avatar,
+      };
     },
   },
 };

@@ -12,7 +12,7 @@ export default function AuthLayout({
           <span className="font-bold text-2xl">NewsHub</span>
         </Link>
       </div>
-      <div className="w-full max-w-md bg-white rounded-lg shadow-md">
+      <div className="w-full">
         {children}
       </div>
     </div>

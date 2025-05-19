@@ -1,5 +1,5 @@
 import {
-  Pagination,
+  Pagination as UIPagination,
   PaginationContent,
   PaginationItem,
   PaginationLink,
@@ -7,15 +7,15 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination';
 
-interface PostsPaginationProps {
+interface PaginationProps {
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
 }
 
-export default function PostsPagination({ currentPage, totalPages, onPageChange }: PostsPaginationProps) {
+export default function Pagination({ currentPage, totalPages, onPageChange }: PaginationProps) {
   return (
-    <Pagination className="mt-8">
+    <UIPagination className="mt-8">
       <PaginationContent>
         <PaginationItem>
           <PaginationPrevious
@@ -40,6 +40,6 @@ export default function PostsPagination({ currentPage, totalPages, onPageChange 
           />
         </PaginationItem>
       </PaginationContent>
-    </Pagination>
+    </UIPagination>
   );
 }

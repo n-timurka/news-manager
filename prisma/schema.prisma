@@ -80,6 +80,7 @@ enum UserRole {
 model User {
   id                String    @default(cuid()) @id
   email             String    @unique
+  emailVerified     Boolean?  @map(name: "email_verified")
   password          String?
   name              String?
   role              UserRole  @default(USER)

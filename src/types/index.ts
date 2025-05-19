@@ -1,12 +1,8 @@
 // Extend the built-in session types from next-auth
 declare module "next-auth" {
   interface Session {
-    user: {
-      id: string;
-      name: string;
-      email: string;
-      role: string;
-    };
+    user: User;
+    expires: string;
   }
 }
 
@@ -23,6 +19,8 @@ export interface User {
   name?: string | null;
   avatar?: string | null;
   role: "ADMIN" | "EDITOR" | "USER";
+  createdAt: string;
+  accounts: { provider: string }[];
 }
 
 export type Post = {

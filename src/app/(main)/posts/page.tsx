@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Plus } from 'lucide-react';
 import { Post } from '@/types';
 import { toast } from "sonner";
-import PostPagination from '@/components/posts/PostPagination';
+import Pagination from '@/components/Pagination';
 import PostsTable from '@/components/posts/PostsTable';
 import SearchInput from '@/components/SearchInput';
 
@@ -115,10 +115,10 @@ export default function PostsPage() {
               sort={sort}
               toggleSort={toggleSort}
             />
-            <PostPagination
+            <Pagination
               currentPage={currentPage}
               totalPages={totalPages}
-              goToPage={goToPage}
+              onPageChange={goToPage}
             />
           </>
         )}

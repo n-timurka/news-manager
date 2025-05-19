@@ -19,8 +19,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Github } from 'lucide-react';
 import { loginSchema } from '@/lib/schema';
+import GoogleButton from "@/components/auth/GoogleButton";
+import GithubButton from "@/components/auth/GithubButton";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -69,23 +70,8 @@ export default function LoginPage() {
     }
   }
 
-  // Handle GitHub login
-  const handleGitHubLogin = async () => {
-    setIsSubmitting(true);
-
-    try {
-      await signIn('github', { callbackUrl: '/' });
-    } catch (error) {
-      toast.error("Login failed", {
-        description: error instanceof Error ? error.message : "An error occurred during login",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
   return (
-    <Card className="w-full max-w-md">
+    <Card className="w-full max-w-md mx-auto">
       <CardHeader className="text-center">
         <CardTitle className="text-xl">Sign In</CardTitle>
         <CardDescription className="text-sm text-gray-600">Sign in with your email or GitHub account.</CardDescription>
@@ -129,11 +115,9 @@ export default function LoginPage() {
         </Form>
       </CardContent>
 
-      <CardFooter className="flex flex-col space-y-4">
-        <Button variant="outline" className="w-full" disabled={isSubmitting} onClick={handleGitHubLogin}>
-          <Github className="mr-2 h-4 w-4" />
-          Sign in with GitHub
-        </Button>
+      <CardFooter className="flex flex-col space-y-2">
+        <GoogleButton isLoading={isSubmitting} />
+        <GithubButton isLoading={isSubmitting} />
 
         <p className="text-sm text-gray-600">
           Don&apos;t have an account?{' '}
