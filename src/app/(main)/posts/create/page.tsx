@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import PostForm from '@/components/posts/PostForm';
@@ -10,7 +10,6 @@ export default function NewPostPage() {
   const router = useRouter();
   const { can } = usePermissions();
   const { status } = useSession();
-  const [error, setError] = useState<string | null>(null);
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -29,10 +28,6 @@ export default function NewPostPage() {
   }
 
   return (
-    <PostForm
-      mode="create"
-      error={error}
-      setError={setError}
-    />
+    <PostForm mode="create" />
   );
 }

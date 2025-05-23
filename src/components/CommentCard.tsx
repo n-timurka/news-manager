@@ -164,12 +164,11 @@ export default function CommentCard({ comment, nestingLevel = 0, setComments }: 
           <AvatarImage src={comment.author.avatar || undefined} />
           <AvatarFallback>CN</AvatarFallback>
         </Avatar>
-        <div className='w-full pr-16'>
+        <div className='w-full md:pr-16'>
           <div className='flex justify-between items-center'>
-            <div className="flex items-center gap-2 text-sm text-gray-600">
+            <div className="flex flex-col md:flex-row justify-between text-sm text-gray-600">
               <span>{comment.author.name || comment.author.email}</span>
-              <span>•</span>
-              <span>{new Date(comment.createdAt).toLocaleString()}</span>
+              <span className='text-gray-400 text-xs italic'>{new Date(comment.createdAt).toLocaleString()}</span>
             </div>
           </div>
           
@@ -220,7 +219,7 @@ export default function CommentCard({ comment, nestingLevel = 0, setComments }: 
             </>
           )}
         </div>
-        <div className='absolute top-2 right-2 flex gap-2'>
+        <div className='absolute bottom-4 right-4 flex gap-2'>
           { canEdit && (
             <Button variant={'ghost'} size={'icon'} onClick={() => setIsEditing(true)}>
               <Pencil className='w-4 h-4' />

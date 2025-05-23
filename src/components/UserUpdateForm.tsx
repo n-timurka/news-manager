@@ -17,7 +17,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { userUpdateSchema } from '@/lib/schema';
 import { User } from '@/types';
-import Image from 'next/image';
+import { Avatar, AvatarImage } from '@radix-ui/react-avatar';
+import { toast } from 'sonner';
 
 interface UserUpdateFormProps {
   user: User;
@@ -28,7 +29,7 @@ interface UserUpdateFormProps {
 
 export default function UserUpdateForm({ user, isOpen, onClose, isAdmin }: UserUpdateFormProps) {
   const { data: session } = useSession();
-  const [error, setError] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(user.avatar || null);
 
   const form = useForm<z.infer<typeof userUpdateSchema>>({
@@ -58,11 +59,11 @@ export default function UserUpdateForm({ user, isOpen, onClose, isAdmin }: UserU
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
-      setError('Please upload an image file');
+      toast.error('Please upload an image file');
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      setError('Image size must be less than 5MB');
+      toast.error('Image size must be less than 5MB');
       return;
     }
 
@@ -79,20 +80,20 @@ export default function UserUpdateForm({ user, isOpen, onClose, isAdmin }: UserU
       });
 
       if (!response.ok) {
-        throw new Error('Failed to upload avatar');
+        toast.error('Failed to upload avatar');
       }
 
       const { url } = await response.json();
       form.setValue('avatar', url);
       setAvatarPreview(url);
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Unknown error');
+      toast.error(error instanceof Error ? error.message : 'Unknown error');
     }
   };
 
   // Handle form submission
   const onSubmit = async (data: z.infer<typeof userUpdateSchema>) => {
-    setError(null);
+    setIsSaving(true);
     try {
       const response = await fetch(`/api/users/${user.id}`, {
         method: 'PUT',
@@ -102,7 +103,7 @@ export default function UserUpdateForm({ user, isOpen, onClose, isAdmin }: UserU
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to update user');
+        toast.error(errorData.message || 'Failed to update user');
       }
 
       // Update session if self
@@ -111,7 +112,9 @@ export default function UserUpdateForm({ user, isOpen, onClose, isAdmin }: UserU
       }
       onClose();
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Unknown error');
+      toast.error(error instanceof Error ? error.message : 'Unknown error');
+    } finally {
+      setIsSaving(true);
     }
   };
 
@@ -156,13 +159,9 @@ export default function UserUpdateForm({ user, isOpen, onClose, isAdmin }: UserU
               </FormControl>
               {avatarPreview && (
                 <div className="mt-2">
-                  <Image
-                    src={avatarPreview}
-                    alt="Avatar preview"
-                    width={100}
-                    height={100}
-                    className="w-24 h-24 object-cover rounded-full"
-                  />
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src={avatarPreview} alt="User avatar" />
+                  </Avatar>
                 </div>
               )}
               <FormMessage />
@@ -190,13 +189,13 @@ export default function UserUpdateForm({ user, isOpen, onClose, isAdmin }: UserU
                 )}
               />
             )}
-            {error && <p className="text-sm text-red-600">{error}</p>}
+
             <div className="flex justify-end space-x-2">
               <Button type="button" variant="outline" onClick={onClose}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={Object.keys(form.formState.errors).length > 0}>
-                Update
+              <Button type="submit" disabled={isSaving || Object.keys(form.formState.errors).length > 0}>
+                {isSaving ? 'Updating' : 'Update'}
               </Button>
             </div>
           </form>

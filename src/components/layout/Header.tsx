@@ -12,11 +12,9 @@ export default function Header() {
   return (
     <header className="border-b bg-background sticky top-0 z-10">
       <div className="container mx-auto px-4 flex h-16 items-center justify-between py-4">
-        <div className="flex items-center gap-6">
-          <Link href="/" className="font-bold text-xl">
-            NewsHub
-          </Link>
-        </div>
+        <Link href="/" className="font-bold text-xl">
+          NewsHub
+        </Link>
 
         <div className="flex items-center gap-4">
           {session ? (

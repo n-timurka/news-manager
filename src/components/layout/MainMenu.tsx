@@ -4,7 +4,7 @@ import {
   NavigationMenuList,
 } from "@/components/ui/navigation-menu"
 import Link from "next/link";
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import usePermissions, { Permission } from "@/hooks/usePermissions";
 
@@ -19,7 +19,7 @@ export default function MainMenu() {
                         <Button variant="secondary">
                             <Link href="/posts/create" className="flex items-center space-x-2">
                                 <Plus className="h-4 w-4" />
-                                <span className="hidden md:inline">Create Post</span>
+                                <span>Create Post</span>
                             </Link>
                         </Button>
                     </NavigationMenuItem>

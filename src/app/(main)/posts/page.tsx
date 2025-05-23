@@ -97,7 +97,7 @@ export default function PostsPage() {
   return (
     <Card>
       <CardHeader>
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col md:flex-row gap-4 justify-between">
           <CardTitle className='text-xl'>Posts</CardTitle>
           <div className='flex gap-4'>
             <SearchInput value={search} onChange={handleSearchChange} />

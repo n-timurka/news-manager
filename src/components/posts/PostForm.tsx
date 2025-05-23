@@ -15,7 +15,7 @@ import { Post } from '@/types';
 import Image from 'next/image';
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react"
-import { Textarea } from '../ui/textarea';
+import { Textarea } from '@/components/ui/textarea';
 import Editor from 'react-simple-wysiwyg';
 import Link from 'next/link';
 
@@ -24,8 +24,6 @@ interface PostFormProps {
   slug?: string;
   initialData?: Post;
   isLoading?: boolean;
-  error?: string | null;
-  setError?: (error: string | null) => void;
 }
 
 export default function PostForm({ mode, slug, initialData, isLoading }: PostFormProps) {
@@ -153,7 +151,22 @@ export default function PostForm({ mode, slug, initialData, isLoading }: PostFor
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="flex gap-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="relative flex flex-col md:flex-row gap-6 pt-20 md:pt-0">
+        <Card className='fixed top-20 left-0 w-full rounded-sm md:hidden'>
+          <CardContent className='w-full p-4 flex gap-4'>
+            <Button
+              type="submit"
+              className='grow'
+              disabled={Object.keys(form.formState.errors).length > 0 || isSaving}
+            >
+              {isSaving && (<Loader2 className="animate-spin" />) }
+              {mode === 'create' ? 'Create Post' : 'Update Post'}
+            </Button>
+            <Button type="button" variant="outline" onClick={() => router.push('/posts')}>
+              Cancel
+            </Button>
+          </CardContent>
+        </Card>
         <Card className='flex-1'>
           <CardHeader>
             <div className='flex justify-between items-center'>
@@ -216,89 +229,89 @@ export default function PostForm({ mode, slug, initialData, isLoading }: PostFor
           </CardContent>
         </Card>
 
-            <Card className='basis-1/4'>
-                <CardHeader>
-                    <div className="flex space-x-4">
-                        <Button
-                            type="submit"
-                            className='grow'
-                            disabled={Object.keys(form.formState.errors).length > 0 || isSaving}
-                        >
-                            {isSaving && (<Loader2 className="animate-spin" />) }
-                            {mode === 'create' ? 'Create Post' : 'Update Post'}
-                        </Button>
-                        <Button type="button" variant="outline" onClick={() => router.push('/posts')}>
-                            Cancel
-                        </Button>
-                    </div>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                    <FormField
-                    control={form.control}
-                    name="slug"
-                    render={({ field }) => (
-                        <FormItem>
-                        <FormLabel>Slug</FormLabel>
-                        <FormControl>
-                            <Input placeholder="post-slug" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                        </FormItem>
-                    )}
-                    />
-                    <FormField
-                    control={form.control}
-                    name="status"
-                    render={({ field }) => (
-                        <FormItem>
-                        <FormLabel>Status</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                            <FormControl>
-                            <SelectTrigger>
-                                <SelectValue placeholder="Select status" />
-                            </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                            <SelectItem value="DRAFT">Draft</SelectItem>
-                            <SelectItem value="PUBLISHED">Published</SelectItem>
-                            </SelectContent>
-                        </Select>
-                        <FormMessage />
-                        </FormItem>
-                    )}
-                    />
-                    <FormItem>
-                    <FormLabel>Tags (comma-separated)</FormLabel>
+        <Card className='basis-1/4'>
+          <CardHeader className='hidden md:flex'>
+            <div className="flex space-x-4">
+              <Button
+                type="submit"
+                className='grow'
+                disabled={Object.keys(form.formState.errors).length > 0 || isSaving}
+              >
+                {isSaving && (<Loader2 className="animate-spin" />) }
+                {mode === 'create' ? 'Create Post' : 'Update Post'}
+              </Button>
+              <Button type="button" variant="outline" onClick={() => router.push('/posts')}>
+                Cancel
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="mt-4 md:mt-0 space-y-6">
+            <FormField
+              control={form.control}
+              name="slug"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Slug</FormLabel>
+                  <FormControl>
+                      <Input placeholder="post-slug" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="status"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Status</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
-                        <Input
-                        placeholder="e.g., news, tech, blog"
-                        value={tagsInput}
-                        onChange={handleTagsChange}
-                        />
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select status" />
+                      </SelectTrigger>
                     </FormControl>
-                    <FormMessage />
-                    </FormItem>
-                    <FormItem>
-                    <FormLabel>Post Image (optional)</FormLabel>
-                    <FormControl>
-                        <Input type="file" accept="image/*" onChange={handleImageUpload} disabled={isLoading} />
-                    </FormControl>
-                    {imagePreview && (
-                        <div className="mt-4">
-                        <Image
-                            src={imagePreview}
-                            alt="Post image preview"
-                            width={400}
-                            height={200}
-                            className="w-full h-48 object-cover rounded"
-                        />
-                        </div>
-                    )}
-                    <FormMessage />
-                    </FormItem>
-                </CardContent>
-            </Card>
-        </form>
+                    <SelectContent>
+                      <SelectItem value="DRAFT">Draft</SelectItem>
+                      <SelectItem value="PUBLISHED">Published</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormItem>
+              <FormLabel>Tags (comma-separated)</FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="e.g., news, tech, blog"
+                  value={tagsInput}
+                  onChange={handleTagsChange}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+            <FormItem>
+              <FormLabel>Post Image (optional)</FormLabel>
+              <FormControl>
+                <Input type="file" accept="image/*" onChange={handleImageUpload} disabled={isLoading} />
+              </FormControl>
+              {imagePreview && (
+                <div className="mt-4">
+                  <Image
+                      src={imagePreview}
+                      alt="Post image preview"
+                      width={400}
+                      height={200}
+                      className="w-full h-48 object-cover rounded"
+                  />
+                </div>
+              )}
+              <FormMessage />
+            </FormItem>
+          </CardContent>
+        </Card>
+      </form>
     </Form>
   );
 }

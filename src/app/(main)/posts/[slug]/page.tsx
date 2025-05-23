@@ -107,15 +107,8 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
       </Breadcrumb>
 
       {/* Post Details */}
-      <article className="mb-8">
-        <div className='flex justify-between items-center mb-4'>
-          <h1>{post.title}</h1>
-          {can(Permission.EDIT_ALL_POSTS || canOwn(Permission.EDIT_OWN_POSTS, post.id)) && (
-            <Button variant={"outline"}>
-              <Link href={`/posts/${post.slug}/edit`}>Edit</Link>
-            </Button>
-          )}
-        </div>
+      <article className="article mb-8">
+        <h1>{post.title}</h1>
         
         {post.image && (
           <Image
@@ -135,6 +128,11 @@ export default function PostDetailPage({ params }: { params: Promise<{ slug: str
             <Clock className='w-4 h-4' />
             <span>{new Date(post.createdAt).toLocaleDateString()}</span>
           </span>
+          {can(Permission.EDIT_ALL_POSTS || canOwn(Permission.EDIT_OWN_POSTS, post.id)) && (
+            <Button variant={"outline"} size={'sm'}>
+              <Link href={`/posts/${post.slug}/edit`}>Edit</Link>
+            </Button>
+          )}
         </div>
         <div className="flex flex-wrap gap-2 mb-4">
           {post.tags.map(tag => (

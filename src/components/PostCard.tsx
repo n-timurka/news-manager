@@ -40,7 +40,7 @@ export default function PostCard({ post }: PostCardProps) {
             <span>{new Date(post.createdAt).toLocaleDateString()}</span>
           </span>
         </div>
-        <div className="text-sm h-20 mb-2">
+        <div className="text-sm h-20 mb-2 overflow-y-hidden text-ellipsis">
           {post.excerpt}
         </div>
         <div className='h-6 space-x-2'>

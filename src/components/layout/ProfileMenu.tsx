@@ -1,3 +1,5 @@
+"use client";
+
 import { ChevronDown, User, LogOut, Users, Newspaper, LockKeyhole } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -26,7 +28,7 @@ export default function ProfileMenu() {
                             {session?.user?.name?.charAt(0).toUpperCase() || "U"}
                         </AvatarFallback>
                     </Avatar>
-                    <span>{session?.user?.name || session?.user?.email}</span>
+                    <span className="hidden md:inline">{session?.user?.name || session?.user?.email}</span>
                     <ChevronDown className="h-4 w-4" />
                 </Button>
             </DropdownMenuTrigger>
@@ -48,7 +50,7 @@ export default function ProfileMenu() {
                         </Link>
                     </DropdownMenuItem>
                 )}
-                {can(Permission.VIEW_POSTS) || can(Permission.VIEW_USERS) && (
+                {(can(Permission.VIEW_POSTS) || can(Permission.VIEW_USERS)) && (
                     <DropdownMenuSeparator />
                 )}
                 
