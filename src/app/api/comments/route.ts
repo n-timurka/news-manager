@@ -15,7 +15,7 @@ export async function POST(request: Request) {
   try {
     // Parse and validate request body
     const body = await request.json();
-    const { postId, content } = commentSchema.parse(body);
+    const { postId, parentId, content } = commentSchema.parse(body);
 
     // Verify post exists
     const post = await prisma.post.findUnique({
@@ -31,6 +31,7 @@ export async function POST(request: Request) {
         content,
         authorId: session.user.id,
         postId,
+        parentId,
       },
       include: {
         author: {

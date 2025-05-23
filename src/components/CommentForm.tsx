@@ -27,7 +27,6 @@ export default function CommentForm({ onSubmit, isAuthenticated }: CommentFormPr
   });
 
   const handleSubmit = async (data: CommentFormData) => {
-    console.log('CommentForm handleSubmit called:', data);
     setIsSubmitting(true);
     try {
       await onSubmit(data.content);
@@ -37,13 +36,9 @@ export default function CommentForm({ onSubmit, isAuthenticated }: CommentFormPr
     }
   };
 
-  useEffect(() => {
-    console.log('CommentForm Errors:', form.formState.errors);
-  }, [form.formState.errors]);
-
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-2">
         <FormField
           control={form.control}
           name="content"
@@ -60,7 +55,7 @@ export default function CommentForm({ onSubmit, isAuthenticated }: CommentFormPr
             </FormItem>
           )}
         />
-        <Button type="submit" disabled={!isAuthenticated || isSubmitting} onClick={() => console.log('Submit button clicked')}>
+        <Button type="submit" disabled={!isAuthenticated || isSubmitting}>
           {isSubmitting ? 'Submitting...' : 'Post Comment'}
         </Button>
       </form>

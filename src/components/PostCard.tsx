@@ -1,22 +1,11 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Post } from '@/types';
-
-// Utility to strip HTML and truncate text
-const stripHtml = (html: string) => {
-  if (typeof document === 'undefined') return html;
-  const tmp = document.createElement('div');
-  tmp.innerHTML = html;
-  return tmp.textContent || tmp.innerText || '';
-};
-
-const truncateText = (text: string, maxLength: number) => {
-  if (text.length <= maxLength) return text;
-  const truncated = text.slice(0, maxLength);
-  const lastSpace = truncated.lastIndexOf(' ');
-  return lastSpace > 0 ? truncated.slice(0, lastSpace) + '...' : truncated + '...';
-};
+import { Button } from './ui/button';
+import { Clock, MessageCircle } from 'lucide-react';
+import { Badge } from './ui/badge';
+import { AspectRatio } from './ui/aspect-ratio';
 
 interface PostCardProps {
   post: Post;
@@ -26,28 +15,53 @@ export default function PostCard({ post }: PostCardProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg">
+        <CardTitle className="text-lg truncate">
           <Link href={`/posts/${post.slug}`} className="hover:underline">
             {post.title}
           </Link>
         </CardTitle>
       </CardHeader>
       <CardContent>
-        {post.image && (
-          <Image
-            src={post.image}
-            alt={post.title}
-            width={400}
-            height={200}
-            className="w-full h-48 object-cover rounded mb-4"
-          />
-        )}
-        <p className="text-sm text-gray-600 mb-2">
-          By {post.author.name || post.author.email} | {new Date(post.createdAt).toLocaleDateString()}
-        </p>
-        <p className="text-sm mb-2">{truncateText(stripHtml(post.content), 100)}</p>
-        <p className="text-sm text-gray-500">Comments: {post.comments.length}</p>
+        <AspectRatio ratio={16 / 9} className="bg-muted mb-4 rounded">
+          {post.image && (
+            <Image
+              src={post.image}
+              alt={post.title}
+              width={400}
+              height={200}
+              className="w-full h-full object-cover rounded"
+            />
+          )}
+        </AspectRatio>
+        <div className="flex justify-between text-sm text-gray-600 mb-2">
+          <span>Author: {post.author.name || post.author.email}</span>
+          <span className='inline-flex items-center space-x-1'>
+            <Clock className='w-4 h-4' />
+            <span>{new Date(post.createdAt).toLocaleDateString()}</span>
+          </span>
+        </div>
+        <div className="text-sm h-20 mb-2">
+          {post.excerpt}
+        </div>
+        <div className='h-6 space-x-2'>
+          {post.tags.map((tag, key) => (
+            <Badge key={key} variant={"outline"}>
+              {tag.name}
+            </Badge>
+          ))}
+        </div>
       </CardContent>
+      <CardFooter className='flex justify-between'>
+        <p className="flex space-x-1 items-center text-sm text-gray-500">
+          <MessageCircle className='w-4 h-4' />
+          <span>{post.comments.length}</span>
+        </p>
+        <Button variant={"secondary"}>
+          <Link href={`/posts/${post.slug}`}>
+            More
+          </Link>
+        </Button>
+      </CardFooter>
     </Card>
   );
 }

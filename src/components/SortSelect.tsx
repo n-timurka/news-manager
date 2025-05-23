@@ -10,7 +10,7 @@ interface SortSelectProps {
 export default function SortSelect({ value, onChange }: SortSelectProps) {
   return (
     <Select value={value} onValueChange={onChange}>
-      <SelectTrigger className="w-48">
+      <SelectTrigger className="w-32">
         <SelectValue placeholder="Sort by" />
       </SelectTrigger>
       <SelectContent>

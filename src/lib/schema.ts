@@ -30,6 +30,10 @@ export const postSchema = z.object({
       "Slug can only contain letters, numbers, and hyphens"
     ),
   content: z.string().min(10, "Content must be at least 10 characters"),
+  excerpt: z
+    .string()
+    .min(10, "Preview must be at least 10 characters")
+    .optional(),
   image: z.string().url("Invalid image URL").nullish(),
   status: z.enum(["DRAFT", "PUBLISHED"]).default("DRAFT").optional(),
   tags: z.array(z.string()).optional(),
@@ -46,13 +50,20 @@ export const postListQuerySchema = z.object({
 
 // Comment schema
 export const commentSchema = z.object({
-  content: z.string().min(1, "Comment cannot be empty"),
+  content: z
+    .string()
+    .min(1, "Comment cannot be empty")
+    .max(500, "Comment must be 500 characters or less"),
   postId: z.string().cuid("Invalid post ID"),
+  parentId: z.string().cuid("Invalid parent comment ID").optional().nullable(),
 });
 
 // Comment form schema (client-side)
 export const commentFormSchema = z.object({
-  content: z.string().min(1, "Comment cannot be empty"),
+  content: z
+    .string()
+    .min(1, "Comment cannot be empty")
+    .max(500, "Comment must be 500 characters or less"),
 });
 
 export const userUpdateSchema = z.object({

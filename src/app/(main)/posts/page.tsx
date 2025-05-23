@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import Pagination from '@/components/Pagination';
 import PostsTable from '@/components/posts/PostsTable';
 import SearchInput from '@/components/SearchInput';
+import usePermissions, { Permission } from '@/hooks/usePermissions';
 
 interface PostListResponse {
   posts: Post[];
@@ -23,6 +24,7 @@ interface PostListResponse {
 
 export default function PostsPage() {
   const { status } = useSession();
+  const { can } = usePermissions();
   const router = useRouter();
   const [posts, setPosts] = useState<Post[]>([]);
   const [totalPages, setTotalPages] = useState(1);
@@ -34,10 +36,14 @@ export default function PostsPage() {
 
   // Redirect if not authenticated
   useEffect(() => {
-    if (status === 'unauthenticated') {
+    if (status !== "authenticated") {
       router.push('/login');
+      return;
     }
-  }, [status, router]);
+    if (!can(Permission.VIEW_POSTS)) {
+      router.push('/');
+    }
+  }, [status, can, router]);
 
   // Fetch posts
   useEffect(() => {
@@ -94,13 +100,15 @@ export default function PostsPage() {
         <div className="flex justify-between items-center">
           <CardTitle className='text-xl'>Posts</CardTitle>
           <div className='flex gap-4'>
-            <SearchInput value={search} onChange={handleSearchChange}  />
-            <Button asChild>
-              <Link href="/posts/create">
-                <Plus className="h-4 w-4" />
-                Create
-              </Link>
-            </Button>
+            <SearchInput value={search} onChange={handleSearchChange} />
+            {can(Permission.CREATE_POSTS) && (
+              <Button asChild>
+                <Link href="/posts/create">
+                  <Plus className="h-4 w-4" />
+                  Create
+                </Link>
+              </Button>
+            )}
           </div>
         </div>
       </CardHeader>

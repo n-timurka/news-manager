@@ -5,15 +5,25 @@ import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { Post } from '@/types';
 import PostForm from '@/components/posts/PostForm';
+import usePermissions, { Permission } from '@/hooks/usePermissions';
 
 export default function EditPostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
   const router = useRouter();
+  const { can, canOwn } = usePermissions();
   const { data: session, status } = useSession();
   const [post, setPost] = useState<Post | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (status !== "authenticated") {
+      router.push('/login');
+      return;
+    }
+  }, [status, router]);
+    
   // Fetch post data
   useEffect(() => {
     if (status !== 'authenticated') return;
@@ -37,6 +47,9 @@ export default function EditPostPage({ params }: { params: Promise<{ slug: strin
         }
 
         setPost(fetchedPost);
+        if (!post || !can(Permission.EDIT_ALL_POSTS) && !canOwn(Permission.EDIT_OWN_POSTS, post.id)) {
+          router.push('/');
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Unknown error');
       } finally {
@@ -44,15 +57,11 @@ export default function EditPostPage({ params }: { params: Promise<{ slug: strin
       }
     };
     fetchPost();
-  }, [slug, status, session, router]);
+  }, [slug, status, session, router, post, can, canOwn]);
 
   // Redirect if not authenticated
   if (status === 'loading') {
     return <div className="max-w-7xl mx-auto py-8 px-4">Loading...</div>;
-  }
-  if (status === 'unauthenticated') {
-    router.push('/login');
-    return null;
   }
 
   if (isLoading) {

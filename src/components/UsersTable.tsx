@@ -23,6 +23,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import UserUpdateForm from '@/components/UserUpdateForm';
 import { User } from '@/types';
+import usePermissions, { Permission } from '@/hooks/usePermissions';
 
 interface UsersTableProps {
   users: User[];
@@ -33,6 +34,7 @@ interface UsersTableProps {
 }
 
 export default function UsersTable({ users, isLoading, sort, toggleSort, currentUserId }: UsersTableProps) {
+  const { can } = usePermissions();
   const [deleteUser, setDeleteUser] = useState<User | null>(null);
   const [editUser, setEditUser] = useState<User | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -114,21 +116,25 @@ export default function UsersTable({ users, isLoading, sort, toggleSort, current
                 <TableCell>{user.accounts.length > 0 ? user.accounts.map(acc => acc.provider).join(", ") : "-"}</TableCell>
                 <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
                 <TableCell>
-                    <Button
-                      variant="link"
-                      disabled={user.role === 'ADMIN'}
-                      onClick={() => setEditUser(user)}
-                    >
-                      Edit
-                    </Button>
-                  <Button
-                    variant="link"
-                    className="text-red-600"
-                    onClick={() => setDeleteUser(user)}
-                    disabled={user.id === currentUserId}
-                  >
-                    Delete
-                  </Button>
+                  { can(Permission.MANAGE_USERS) && (
+                    <>
+                      <Button
+                        variant="link"
+                        disabled={user.role === 'ADMIN'}
+                        onClick={() => setEditUser(user)}
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        variant="link"
+                        className="text-red-600"
+                        onClick={() => setDeleteUser(user)}
+                        disabled={user.id === currentUserId}
+                      >
+                        Delete
+                      </Button>
+                    </>
+                  )}
                 </TableCell>
               </TableRow>
             ))

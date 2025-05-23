@@ -123,6 +123,7 @@ export async function POST(request: Request) {
         title: data.title,
         slug: data.slug,
         content: data.content,
+        excerpt: data.excerpt,
         image: data.image,
         status: data.status,
         authorId: session.user.id,

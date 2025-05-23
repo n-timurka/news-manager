@@ -40,8 +40,6 @@ export default function UsersPage() {
 
   // Fetch users
   useEffect(() => {
-    if (status !== 'authenticated' || session?.user.role !== 'ADMIN') return;
-
     const fetchUsers = async () => {
       setIsLoading(true);
 
@@ -92,30 +90,30 @@ export default function UsersPage() {
   }
 
   return (
-      <Card>
-        <CardHeader>
-            <div className="flex justify-between items-center">
-                <CardTitle className='text-xl'>Users</CardTitle>
-                <SearchInput
-                    value={search}
-                    onChange={handleSearchChange}
-                />
-            </div>
-        </CardHeader>
-        <CardContent>
-          <UsersTable
-            users={users}
-            isLoading={isLoading}
-            sort={sort}
-            toggleSort={toggleSort}
-            currentUserId={session?.user.id || ''}
+    <Card>
+      <CardHeader>
+        <div className="flex justify-between items-center">
+          <CardTitle className='text-xl'>Users</CardTitle>
+          <SearchInput
+              value={search}
+              onChange={handleSearchChange}
           />
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={goToPage}
-          />
-        </CardContent>
-      </Card>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <UsersTable
+          users={users}
+          isLoading={isLoading}
+          sort={sort}
+          toggleSort={toggleSort}
+          currentUserId={session?.user.id || ''}
+        />
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={goToPage}
+        />
+      </CardContent>
+    </Card>
   );
 }

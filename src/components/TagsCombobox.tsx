@@ -34,7 +34,7 @@ export default function TagsCombobox({ tags, selectedTags, onChange }: TagsCombo
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[300px] justify-between"
+          className="justify-between"
         >
           {selectedTags.length > 0
             ? selectedTags.join(', ')

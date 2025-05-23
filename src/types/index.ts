@@ -27,12 +27,13 @@ export type Post = {
   id: string;
   title: string;
   slug: string;
-  content: string;
+  excerpt?: string;
+  content?: string;
   image?: string | null;
   status: "DRAFT" | "PUBLISHED";
   authorId: string;
   author: User;
-  comments: { id: string }[];
+  comments: Comment[];
   tags: { name: string }[];
   createdAt: string;
   updatedAt: string;
@@ -63,6 +64,8 @@ export type Comment = {
   authorId: string;
   author: User;
   postId: string;
+  parentId?: string | null;
+  replies: Comment[];
   createdAt: string;
   updatedAt: string;
 };

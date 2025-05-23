@@ -6,6 +6,7 @@ export enum Permission {
   VIEW_USERS = "VIEW_USERS",
   MANAGE_USERS = "MANAGE_USERS",
   // Post permissions
+  VIEW_POSTS = "VIEW_POSTS",
   CREATE_POSTS = "CREATE_POSTS",
   EDIT_OWN_POSTS = "EDIT_OWN_POSTS",
   EDIT_ALL_POSTS = "EDIT_ALL_POSTS",
@@ -13,24 +14,31 @@ export enum Permission {
   DELETE_ALL_POSTS = "DELETE_ALL_POSTS",
   // Comment permissions
   CREATE_COMMENTS = "CREATE_COMMENTS",
+  EDIT_ALL_COMMENTS = "EDIT_ALL_COMMENTS",
   EDIT_OWN_COMMENTS = "EDIT_OWN_COMMENTS",
   DELETE_OWN_COMMENTS = "DELETE_OWN_COMMENTS",
   DELETE_ALL_COMMENTS = "DELETE_ALL_COMMENTS",
 }
+export type OwnPermissions =
+  | Permission.EDIT_OWN_POSTS
+  | Permission.DELETE_OWN_POSTS
+  | Permission.EDIT_OWN_COMMENTS
+  | Permission.DELETE_OWN_COMMENTS;
 export const RolePermissions = {
   [UserRole.USER]: [
-    Permission.CREATE_POSTS,
     Permission.CREATE_COMMENTS,
     Permission.EDIT_OWN_COMMENTS,
     Permission.DELETE_OWN_COMMENTS,
   ],
   [UserRole.EDITOR]: [
+    Permission.VIEW_POSTS,
     Permission.CREATE_POSTS,
     Permission.EDIT_OWN_POSTS,
     Permission.DELETE_OWN_POSTS,
     Permission.CREATE_COMMENTS,
     Permission.EDIT_OWN_COMMENTS,
     Permission.DELETE_OWN_COMMENTS,
+    Permission.DELETE_ALL_COMMENTS,
   ],
   [UserRole.ADMIN]: Object.values(Permission),
 };
@@ -47,6 +55,9 @@ export default function usePermissions() {
     const userRole = session.user.role as UserRole;
     return RolePermissions[userRole]?.includes(permission) || false;
   };
+  const canOwn = (permission: OwnPermissions, id: string): boolean => {
+    return can(permission) && session?.user.id === id;
+  };
 
-  return { can };
+  return { can, canOwn };
 }

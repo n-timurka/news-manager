@@ -19,7 +19,7 @@ export default function MainMenu() {
                         <Button variant="secondary">
                             <Link href="/posts/create" className="flex items-center space-x-2">
                                 <Plus className="h-4 w-4" />
-                                <span>Create Post</span>
+                                <span className="hidden md:inline">Create Post</span>
                             </Link>
                         </Button>
                     </NavigationMenuItem>

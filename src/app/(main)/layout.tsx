@@ -10,7 +10,7 @@ export default async function MainLayout({
   return (
     <main className="w-full min-h-screen bg-gray-50 flex flex-col">
       <Header />
-      <main className="flex-1 py-4 container mx-auto">{children}</main>
+      <main className="flex-1 py-4 container mx-auto px-4">{children}</main>
       <Footer />
       <Toaster />
     </main>

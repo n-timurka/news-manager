@@ -21,6 +21,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Post } from '@/types';
 import { useState } from 'react';
+import usePermissions, { Permission } from '@/hooks/usePermissions';
 
 interface PostsTableProps {
   posts: Post[];
@@ -30,6 +31,7 @@ interface PostsTableProps {
 }
 
 export default function PostsTable({ posts, isLoading, sort, toggleSort }: PostsTableProps) {
+  const { can, canOwn } = usePermissions();
   const [deletePost, setDeletePost] = useState<Post | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -104,16 +106,20 @@ export default function PostsTable({ posts, isLoading, sort, toggleSort }: Posts
                 <Button variant="link" asChild>
                   <Link href={`/posts/${post.slug}`}>View</Link>
                 </Button>
-                <Button variant="link" asChild>
-                  <Link href={`/posts/${post.slug}/edit`}>Edit</Link>
-                </Button>
-                <Button
-                  variant="link"
-                  className="text-red-600"
-                  onClick={() => setDeletePost(post)}
-                >
-                  Delete
-                </Button>
+                {can(Permission.EDIT_ALL_POSTS) || canOwn(Permission.EDIT_OWN_POSTS, post.id) && (
+                  <Button variant="link" asChild>
+                    <Link href={`/posts/${post.slug}/edit`}>Edit</Link>
+                  </Button>
+                )}
+                {can(Permission.DELETE_ALL_POSTS) || canOwn(Permission.DELETE_OWN_POSTS, post.id) && (
+                  <Button
+                    variant="link"
+                    className="text-red-600"
+                    onClick={() => setDeletePost(post)}
+                  >
+                    Delete
+                  </Button>
+                )}
               </TableCell>
             </TableRow>
           ))

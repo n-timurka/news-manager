@@ -10,12 +10,14 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import TipTapEditor from '@/components/TipTapEditor';
 import { postSchema } from '@/lib/schema';
 import { Post } from '@/types';
 import Image from 'next/image';
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react"
+import { Textarea } from '../ui/textarea';
+import Editor from 'react-simple-wysiwyg';
+import Link from 'next/link';
 
 interface PostFormProps {
   mode: 'create' | 'edit';
@@ -38,6 +40,7 @@ export default function PostForm({ mode, slug, initialData, isLoading }: PostFor
       title: '',
       slug: '',
       content: '',
+      excerpt: '',
       image: undefined,
       status: 'DRAFT',
       tags: [],
@@ -51,6 +54,7 @@ export default function PostForm({ mode, slug, initialData, isLoading }: PostFor
         title: initialData.title,
         slug: initialData.slug,
         content: initialData.content,
+        excerpt: initialData.excerpt,
         image: initialData.image,
         status: initialData.status,
         tags: initialData.tags.map(tag => tag.name),
@@ -149,43 +153,68 @@ export default function PostForm({ mode, slug, initialData, isLoading }: PostFor
 
   return (
     <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="flex gap-6">
-            <Card className='flex-1'>
-                <CardHeader>
-                    <CardTitle className='text-xl'>{mode === 'create' ? 'Create New Post' : 'Edit Post'}</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                    <FormField
-                    control={form.control}
-                    name="title"
-                    render={({ field }) => (
-                        <FormItem>
-                        <FormLabel>Title</FormLabel>
-                        <FormControl>
-                            <Input placeholder="Enter post title" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                        </FormItem>
-                    )}
+      <form onSubmit={form.handleSubmit(onSubmit)} className="flex gap-6">
+        <Card className='flex-1'>
+          <CardHeader>
+            <div className='flex justify-between items-center'>
+              <CardTitle className='text-xl'>{mode === 'create' ? 'Create New Post' : 'Edit Post'}</CardTitle>
+              {mode === 'edit' && (
+                <Button variant={"outline"}>
+                  <Link href={`/posts/${initialData?.slug}`}>Preview</Link>
+                </Button>
+              )}
+            </div>
+          </CardHeader>
+
+          <CardContent className="space-y-6">
+            <FormField
+              control={form.control}
+              name="title"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Title</FormLabel>
+                  <FormControl>
+                      <Input placeholder="Enter post title" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="excerpt"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Preview</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Enter post preview"
+                      rows={4}
+                      className='resize-none'
+                      {...field}
                     />
-                    <FormField
-                        control={form.control}
-                        name="content"
-                        render={({ field }) => (
-                            <FormItem>
-                            <FormLabel>Content</FormLabel>
-                            <FormControl>
-                                <TipTapEditor
-                                    content={field.value}
-                                    onChange={field.onChange}
-                                />
-                            </FormControl>
-                            <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                </CardContent>
-            </Card>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="content"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Content</FormLabel>
+                  <FormControl>
+                    <Editor value={field.value} onChange={field.onChange} className='h-80' />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </CardContent>
+        </Card>
 
             <Card className='basis-1/4'>
                 <CardHeader>

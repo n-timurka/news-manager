@@ -32,21 +32,26 @@ export default function ProfileMenu() {
             </DropdownMenuTrigger>
 
             <DropdownMenuContent align="end" className="w-64">
-                <DropdownMenuItem className="cursor-pointer">
-                    <Link href="/posts" className="flex items-center space-x-2 gap-2">
-                        <Newspaper className="h-4 w-4" /> 
-                        <span>Posts</span>
-                    </Link>
-                </DropdownMenuItem>
+                {can(Permission.VIEW_POSTS) && (
+                    <DropdownMenuItem className="cursor-pointer">
+                        <Link href="/posts" className="w-full flex items-center space-x-2 gap-2">
+                            <Newspaper className="h-4 w-4" /> 
+                            <span>Posts</span>
+                        </Link>
+                    </DropdownMenuItem>
+                )}
                 {can(Permission.VIEW_USERS) && (
                     <DropdownMenuItem className="cursor-pointer">
-                        <Link href="/users" className="flex items-center space-x-2 gap-2">
+                        <Link href="/users" className="w-full flex items-center space-x-2 gap-2">
                             <Users className="h-4 w-4" /> 
                             <span>Users</span>
                         </Link>
                     </DropdownMenuItem>
                 )}
-                <DropdownMenuSeparator />
+                {can(Permission.VIEW_POSTS) || can(Permission.VIEW_USERS) && (
+                    <DropdownMenuSeparator />
+                )}
+                
                 <DropdownMenuItem
                   className="cursor-pointer flex items-center space-x-2"
                   onClick={() => setEditUser({ ...session?.user as UserType })}

@@ -21,6 +21,7 @@ model Post {
   slug              String      @unique
   status            PostStatus  @default(DRAFT)
   title             String
+  excerpt           String?
   content           String?
   image             String?
   createdAt         DateTime    @default(now()) @map(name: "created_at")

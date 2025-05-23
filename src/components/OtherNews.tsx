@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Post } from '@/types';
+import { Clock, MessageCircle, User } from 'lucide-react';
 
 interface OtherNewsProps {
   currentPostId: string;
@@ -44,26 +45,36 @@ export default function OtherNews({ currentPostId }: OtherNewsProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Other News</CardTitle>
+        <CardTitle>Recent News</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="space-y-4">
           {posts.map(post => (
             <Link key={post.id} href={`/posts/${post.slug}`} className="block">
-              <Card className="hover:shadow-lg transition-shadow">
-                <CardContent className="p-4">
-                  {post.image && (
-                    <Image
-                      src={post.image}
-                      alt={post.title}
-                      width={200}
-                      height={100}
-                      className="w-full h-24 object-cover rounded mb-2"
-                    />
-                  )}
-                  <h3 className="text-sm font-semibold">{post.title}</h3>
-                </CardContent>
-              </Card>
+              {post.image && (
+                <Image
+                  src={post.image}
+                  alt={post.title}
+                  width={200}
+                  height={100}
+                  className="w-full h-24 object-cover rounded mb-2"
+                />
+              )}
+              <h3 className="text-sm font-semibold underline mb-1">{post.title}</h3>
+              <div className='text-xs text-gray-600 flex space-x-2 items-center'>
+                <div className='flex space-x-1'>
+                  <MessageCircle className='w-4 h-4' />
+                  <span>{post.comments.length}</span>
+                </div>
+                <div className='flex space-x-1'>
+                  <Clock className='w-4 h-4' />
+                  <span>{new Date(post.createdAt).toLocaleDateString()}</span>
+                </div>
+                <div className='flex space-x-1'>
+                  <User className='w-4 h-4' />
+                  <span>{post.author.name}</span>
+                </div>
+              </div>
             </Link>
           ))}
         </div>
